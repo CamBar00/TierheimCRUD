@@ -76,11 +76,33 @@
       <button type="submit" class="btn btn-primary my-5" @click="save">
         Registrieren
       </button>
-      <button type="submit" class="btn btn-primary my-5" @click="getAll">
+      <button type="submit" class="btn btn-success my-5" @click="getAll">
         Alle Tiere
       </button>
+      <button type="submit" class="btn btn-warning my-5" @click="">
+        Bearbeiten
+      </button>
 
-      <div>{{ results[0].tiername }}</div>
+      <div class="d-flex flex-row row">
+        <div v-if="results != ' '" v-for="tier in results" class="col-sm">
+          <div class="card my-5 mx-3" style="width:18rem;height:auto;">
+            <img class="card-img-top" :src="tier.tierbild" alt="Tier Bild" />
+            <div class="card-body">
+              {{ tier.tiername }} - {{ tier.tierart }}
+              <div>Rasse: {{ tier.tierrasse }}</div>
+              <div>Geschlecht: {{ tier.tiergeschlecht }}</div>
+              <button
+                type="submit"
+                class="btn btn-danger mt-5"
+                @click="deleteAnimal(tier)"
+                :v-model="tier.tierid"
+              >
+                Löschen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
 </template>
@@ -116,13 +138,7 @@ export default {
         })
         .then(response => {
           console.log(response);
-          this.tier.tierart = "";
-          this.tier.tierbild = "";
-          this.tier.tiergeburtstag = "";
-          this.tier.tiergeschlecht = "";
-          this.tier.tierid = "";
-          this.tier.tiername = "";
-          this.tier.tierrasse = "";
+          this.getAll();
         })
         .catch(error => {
           console.log(error);
@@ -138,8 +154,27 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    deleteAnimal(tier) {
+      axios
+        .delete(`http://localhost:8083/api/v1/tier/deletetier/${tier.tierid}`, {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*"
+          }
+        })
+        .then(response => {
+          console.log("deletedd");
+          this.getAll();
+        });
     }
   }
 };
 </script>
-<style></style>
+<style>
+.card-img-top {
+  width: 100%;
+  height: 15vw;
+  object-fit: cover;
+}
+</style>
