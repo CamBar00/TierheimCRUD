@@ -79,9 +79,6 @@
       <button type="submit" class="btn btn-success my-5" @click="getAll">
         Alle Tiere
       </button>
-      <button type="submit" class="btn btn-warning my-5" @click="">
-        Bearbeiten
-      </button>
 
       <div class="d-flex flex-row row">
         <div v-if="results != ' '" v-for="tier in results" class="col-sm">
@@ -91,14 +88,25 @@
               {{ tier.tiername }} - {{ tier.tierart }}
               <div>Rasse: {{ tier.tierrasse }}</div>
               <div>Geschlecht: {{ tier.tiergeschlecht }}</div>
-              <button
-                type="submit"
-                class="btn btn-danger mt-5"
-                @click="deleteAnimal(tier)"
-                :v-model="tier.tierid"
+              <div
+                class="container d-flex flex-row justify-content-between align-items-start mt-5"
               >
-                Löschen
-              </button>
+                <button
+                  type="submit"
+                  class="btn btn-danger "
+                  @click="deleteAnimal(tier)"
+                  :v-model="tier.tierid"
+                >
+                  Löschen
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-warning "
+                  @click="updateAnimal(tier)"
+                >
+                  Bearbeiten
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -125,7 +133,7 @@ export default {
     };
   },
   methods: {
-    save() {
+    saveNewTier() {
       axios
         .post("http://localhost:8083/api/v1/tier/save", {
           tierid: this.tier.tierid,
@@ -143,6 +151,13 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    save() {
+      if (this.tier.tierid == "") {
+        this.saveNewTier();
+      } else {
+        this.updateAnimal(this.tier);
+      }
     },
     getAll() {
       axios
@@ -167,6 +182,25 @@ export default {
           console.log("deletedd");
           this.getAll();
         });
+    },
+    updateAnimal(tier) {
+      this.tier.tiername = tier.tiername;
+      this.tier.tierart = tier.tierart;
+      this.tier.tierrasse = tier.tierrasse;
+      this.tier.tiergeschlecht = tier.tiergeschlecht;
+      this.tier.tiergeburtstag = tier.tiergeburtstag;
+      this.tier.tierbild = tier.tierbild;
+      axios
+        .post("http://localhost:8083/api/v1/tier/update", this.tier, {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*"
+          }
+        })
+        .then(response => {
+          console.log("updated animal");
+          this.getAll();
+        });
     }
   }
 };
@@ -174,7 +208,8 @@ export default {
 <style>
 .card-img-top {
   width: 100%;
-  height: 15vw;
+  height: 20vw;
+  min-height: 350px;
   object-fit: cover;
 }
 </style>
